@@ -1,9 +1,6 @@
 plugins {
     kotlin("jvm")
-}
-
-repositories {
-    mavenCentral()
+    id("io.johnsonlee.sonatype-publish-plugin")
 }
 
 dependencies {
