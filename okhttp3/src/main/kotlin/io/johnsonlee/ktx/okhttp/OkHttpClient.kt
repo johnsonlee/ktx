@@ -1,13 +1,19 @@
 package io.johnsonlee.ktx.okhttp
 
+import okhttp3.Dispatcher
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
+import okhttp3.internal.threadFactory
 import java.net.CookieManager
 import java.net.CookieStore
+import java.util.concurrent.SynchronousQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
 private val inMemoryCookieStore = InMemoryCookieStore()
 
 fun okhttpClient(
+    useDaemonThread: Boolean = false,
     maxRequestPerMinute: Int = 30,
     cookieStore: CookieStore = inMemoryCookieStore,
 ): OkHttpClient = OkHttpClient.Builder()
@@ -32,6 +38,7 @@ fun okhttpClient(
     }
     .addInterceptor(DomainRateLimitInterceptor(maxRequestPerMinute))
     .cookieJar(JavaNetCookieJar(CookieManager(cookieStore, null)))
+    .dispatcher(Dispatcher(ThreadPoolExecutor(0, Int.MAX_VALUE, 60, TimeUnit.SECONDS, SynchronousQueue(), threadFactory("${OkHttpClient::class.java.name.removePrefix("okhttp3.").removeSuffix("Client")} Dispatcher", useDaemonThread))))
     .build()
 
 private const val CHROME_VERSION = "137"
