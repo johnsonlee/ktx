@@ -27,7 +27,15 @@ jobs:
         echo "Release version ${GITHUB_REF/refs\/tags\/v/} ..."
         echo "Create GPG private key"
         echo $GPG_KEY_ARMOR | base64 --decode > ${GITHUB_WORKSPACE}/secring.gpg
-        ./gradlew clean publishMavenJavaPublicationToSonatypeRepository closeAndReleaseRepository -S --no-daemon \
+        ./gradlew clean publishMavenJavaPublicationToSonatypeRepository -S --no-daemon \
+            -Pversion=${GITHUB_REF/refs\/tags\/v/} \
+            -POSSRH_USERNAME=${OSSRH_USERNAME} \
+            -POSSRH_PASSWORD=${OSSRH_PASSWORD} \
+            -POSSRH_PACKAGE_GROUP=${OSSRH_PACKAGE_GROUP} \
+            -Psigning.keyId=${GPG_KEY_ID} \
+            -Psigning.password=${GPG_PASSPHRASE} \
+            -Psigning.secretKeyRingFile=${GITHUB_WORKSPACE}/secring.gpg
+        ./gradlew closeAndReleaseRepository -S --no-daemon \
             -Pversion=${GITHUB_REF/refs\/tags\/v/} \
             -POSSRH_USERNAME=${OSSRH_USERNAME} \
             -POSSRH_PASSWORD=${OSSRH_PASSWORD} \
