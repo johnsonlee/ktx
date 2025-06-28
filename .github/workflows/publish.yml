@@ -9,6 +9,7 @@ on:
 
 jobs:
   publish:
+    permissions: write-all
     runs-on: ubuntu-latest
     if: github.repository_owner == 'johnsonlee'
 
